@@ -19,7 +19,7 @@ const List<String> currenciesList = [
   'SEK',
   'SGD',
   'USD',
-  'ZAR'
+  'ZAR',
 ];
 
 const List<String> cryptoList = [
@@ -28,4 +28,7 @@ const List<String> cryptoList = [
   'LTC',
 ];
 
-class CoinData {}
+class CoinData {
+  
+
+}
