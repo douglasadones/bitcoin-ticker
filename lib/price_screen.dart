@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:bitcoin_ticker/coin_data.dart';
+import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform; // returns the current OS 
 
 class PriceScreen extends StatefulWidget {
   const PriceScreen({super.key});
@@ -11,45 +12,51 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String? selectedCurrency = 'USD';
-  bool style = true;
+  late bool style;
+  late String image;
 
-  List<DropdownMenuItem<String>> getCurrenciesItems() {
-    List<DropdownMenuItem<String>> androidStyleList = [];
-    for (String name in currenciesList) {
-      androidStyleList.add(
-        DropdownMenuItem(
-          value: name,
-          child: Text(name),
-        ),
-      );
-    }
-    return androidStyleList;
+  @override
+  void initState() {
+    super.initState();
+    initialScrollerStyle();
   }
 
-  List<Widget> getListIosStyle() {
-    List<Widget> ioStyleList = [];
-    for (String item in currenciesList) {
-      ioStyleList.add(Text(item));
+  void initialScrollerStyle() {
+    if (Platform.isIOS) {
+      style = true;
+      image = 'ios';
+    } else if (Platform.isAndroid) {
+      style = false;
+      image = 'android';
     }
-    return ioStyleList;
   }
 
   Widget? scrollerStyle(bool controller) {
     if (controller) {
+      List<Text> ioStyleList = [];
+      for (String item in currenciesList) {
+        ioStyleList.add(Text(item));
+      }
       return CupertinoPicker(
         looping: true,
-        itemExtent: 32.0,
-        onSelectedItemChanged: (selectedIndex) {
-          // ignore: avoid_print
-          print(selectedIndex);
-        },
-        children: getListIosStyle(),
+        itemExtent: 30.0,
+        onSelectedItemChanged: (selectedIndex) {},
+        children: ioStyleList,
       );
     } else {
+      List<DropdownMenuItem<String>> androidStyleList = [];
+      for (String name in currenciesList) {
+        androidStyleList.add(
+          DropdownMenuItem(
+            value: name,
+            child: Text(name),
+          ),
+        );
+      }
       return DropdownButton<String>(
           dropdownColor: Colors.blueGrey,
           value: selectedCurrency, // Starting value
-          items: getCurrenciesItems(),
+          items: androidStyleList,
           onChanged: (value) {
             setState(() {
               selectedCurrency = value;
@@ -63,23 +70,36 @@ class _PriceScreenState extends State<PriceScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: const Center(
-          child: Text('🤑 Coin Ticker'),
-        ),
+        title: const Text('🤑 Coin Ticker'),
         actions: [
-          const Text(
-            'Style: ',
-            textAlign: TextAlign.end,
-            
+          const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                child: Text(
+                  'Scroll Style: ',
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+            ],
           ),
-          Switch(
-            value: style,
-            onChanged: (value) {
+          IconButton(
+            splashRadius: 24,
+            padding: const EdgeInsets.all(4),
+            icon: Image.asset('images/$image.png'),
+            onPressed: () {
               setState(() {
-                style = value;
+                if (style) {
+                  style = false;
+                  image = 'android';
+                } else {
+                  style = true;
+                  image = 'ios';
+                }
               });
             },
           ),
+          const SizedBox(width: 12),
         ],
       ),
       body: Column(
@@ -127,24 +147,3 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 }
-
-// DropdownButton<String>(
-//                 dropdownColor: Colors.blueGrey,
-//                 value: selectedCurrency, // Starting value
-//                 items: getCurrenciesItems(),
-//                 onChanged: (value) {
-//                   setState(() {
-//                     selectedCurrency = value;
-//                   });
-//                 }),
-
-
-// CupertinoPicker(
-//               looping: true,
-//               itemExtent: 32.0,
-//               onSelectedItemChanged: (selectedIndex) {
-//                 // ignore: avoid_print
-//                 print(selectedIndex);
-//               },
-//               children: getListIosStyle(),
-//             ),
